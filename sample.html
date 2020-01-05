@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+
+</body>
+</html>
+
+<?php
+session_start();
+
+if(isset($_SESSION['loggedin']) || ($_SESSION['loggedin']) ==true)  {
+    header("Location: index.php");
+    exit;
+}
+
+/**
+ * nạp file kết nối CSDL
+ */
+
+include_once "config.php";
+
+// tạo biến để lưu trữ lỗi trong quá trình đăng nhâp
+$errors = array();
+
+/**
+ * xử lý đăng nhập
+ */
+if(isset($_POST) && !empty($_POST)) {
+
+    if(!isset($_POST["username"]) || empty($_POST["username"])) {
+        $errors[]="chưa nhập username";
+    }
+    if(!isset($_POST["password"]) || empty($_POST["password"])) {
+        $errors[]="chưa nhập password";
+    }
+    /**
+     * nếu mảng errors rỗng tức là không có lỗi
+     */
+    if (is_array($errors) && empty($errors)) {
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+    }
+}
+?>
+
+
+<?php
+include_once "config.php";
+if(isset($_POST) && !empty($_POST)) {
+    $errors = array();
+
+    if(!isset($_POST["username"]) || empty($_POST["username"])) {
+        $errors[] = "uesrename không hợp lệ";
+    }
+    if(!isset($_POST["password"]) || empty($_POST["password"])) {
+        $errors[] = "password không hợp lệ";
+    }
+    if(!isset($_POST["confirm_password"]) || empty($_POST["confirm_password"])) {
+        $errors[] = "confirm password không hợp lệ";
+    }
+    if($_POST["confirm_password"] !== $_POST["password"]) {
+        $errors[]= "confrim password khác password";
+    }
+    if(empty($errors)) {
+        /**
+         * nếu không có lỗi thì thực thi câu lệnh insert vào csdl
+         */
+
+        $username=$_POST["username"];
+        $password=$_POST["password"];
+        $created_at =date("Y-m-d H:i:s");
+        $sqlInsert="INSERT INTO users(username,password,created_at) VALUES(?,?,?)";
+// câu lệnh chuẩn bị cho phần sql
+        $stmt = $connection->prepare($sqlInsert);
+
+
+//bind 3 biến vào trong câu sql
+$stmt->bind_param("sss", $username, $password, $created_at);
+
+$stmt->execute();
+
+$stmt->close();
+
+} else {
+//chuyển dữ liệu thành chuỗi
+$errors_string = implode("<br>", $errors);
+echo "<div class='alert-danger'>";
+    echo $errors_string;
+    echo "</div>";
+}
+}
+?>
+
+
+
+<?php
+/**
+ * khởi động session trong php
+ */
+session_start();
+
+/**
+ * kiểm tra xem người dùng đã đăng nhập hay chưa
+ * nếu chưa đăng nhập ta sẽ chuyển hướng về trang login.php
+ */
+
+if(!isset($_SESSION["loggedin"]) || ($_SESSION["loggedin"] != true))  {
+   // để chuyển hướng redirect trong php sử dụng hàm header
+    header("Location: login.php");
+    exit;
+}
+
+/**
+ * nếu đã đăng nhập thành công
+ */
+?>
+
+
+
+$username=$_POST["username"];
+$password=$_POST["password"];
+$created_at =date("Y-m-d H:i:s");
+$sqlInsert="INSERT INTO users(username,password,created_at) VALUES(?,?,?)";
+// câu lệnh chuẩn bị cho phần sql
+$stmt = $connection->prepare($sqlInsert);
+
+
+//bind 3 biến vào trong câu sql
+$stmt->bind_param("sss", $username, $password, $created_at);
+
+$stmt->execute();
+
+$stmt->close();
